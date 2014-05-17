@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body, #map_canvas { height: 100%; margin: 0;}
+    </style>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="js/GeoJSON.js"></script>
+    <script>
+ 
+      initialize = function(){
+        var mapOptions = {
+          center: new google.maps.LatLng(36.75649, 127.547836),
+          zoom: 8,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+ 
+        var map = new google.maps.Map(document.getElementById("map_canvas"),
+            mapOptions);
+ 
+	$.getJSON('state.json', function (data) {
+	    var style = {
+		strokeColor: 'blue',
+		strokeWeight: 2,
+		fillColor: 'black',
+		fillOpacity: 0.1,
+	    };
+	    var states = new GeoJSON(data, style);
+ 
+            addGeometries(states);
+	});
+
+	$.getJSON('city.json', function (data) {
+	    var style = {
+		strokeColor: 'red',
+		strokeWeight: 1,
+		fillColor: 'black',
+		fillOpacity: 0.1,
+	    };
+	    var states = new GeoJSON(data, style);
+ 
+            addGeometries(states);
+	});
+
+	$.getJSON('dong.json', function (data) {
+	    var style = {
+		strokeColor: 'green',
+		strokeWeight: 1,
+		fillColor: 'black',
+		fillOpacity: 0.1,
+	    };
+	    var states = new GeoJSON(data, style);
+ 
+            addGeometries(states);
+	});
+      
+ 
+        addGeometries = function(overlays, style){
+          $.each(overlays, function(i, overlay){
+            if (!overlay.length) {
+		overlay.setMap(map);
+            } else {
+              // recurse for multigeoms
+	      addGeometries(overlay)
+            }
+          })
+        }
+      }
+    </script>
+  </head>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:100%; height:100%"></div>
+  </body>
+</html>
