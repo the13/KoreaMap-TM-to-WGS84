@@ -3,46 +3,54 @@ TMtoWGS84
 
 통계원의 지도 shp을 위경도(WGS84)로 변환
 
-#Steps
+# Prerequisite
+install ogr2ogr & iconv command line tool &
+```
+brew install gdal libiconv
+```
 
-1. download from data source
-   * 2012_1_0.zip (state)
-   * 2012_2_0.zip (city)
-   * 2012_3_0.zip (dong) 
-   
-1. unzip them into ./original_shp/
 
-1. (convert encoding EUC_KR into UTF8 [see](https://github.com/station3/korea-maps#encoding-conversion-from-the-shapefiles-attributesdbf)) 
 
-1. transform projection
+# Steps
 
-    the source projection is referenced by [google groups](https://groups.google.com/forum/#!msg/osgeo-kr/iB8N0WlsAJM/NmqQoFld7U0J)
-    
-	```bash
-$ ./transform.sh
+1. shp파일 다운로드 http://data.nsdi.go.kr/dataset/15145
+2. unzip하면 네가지 파일이 생성
+   * dbf: 지도객체의 properties
+   * prj: 프로젝션 정보
+   * shp: 지도객체데이터
+   * shx: ?
+
+3. Encoding 처리
+
+	국가자료라서그런지 EUC-KR
+	입력한 input.dbf파일을 UTF-8로 변경한다.
 	```
-	
+	./convert_encoding.sh input.dbf
+	```
+
+4. projection
+
+	projection paramete는 다음을 참고 [google groups](https://groups.google.com/forum/#!msg/osgeo-kr/iB8N0WlsAJM/NmqQoFld7U0J)
+
+	input.shp 같은이름의 dbf파일(input.dbf)등을 참조하여 <out.json> geojson으로 변경
+
+	```
+	./transform.sh input.shp projected
+	```
+
+5. build geoJSON
+	```
+	ogr2ogr -f "GeoJSON" -skipfailures out.json projected/input.shp
+	```
+
 # test
+메모리를 많이먹을위험이있지만.
 
-1. build geoJSON
-1. drawing on google map
-
- 	.. it takes a lot of memory. be careful
-
-
-	```bash
-$ ./test
-	```
-
-   
-
-
-# Data Source
- * http://sgis.kostat.go.kr/statbd/statbd_03.vw#
+```
+./test.sh out.json
+```
 
 
 # References
  * https://groups.google.com/forum/#!msg/osgeo-kr/iB8N0WlsAJM/NmqQoFld7U0J
- * https://github.com/station3/korea-maps
- * https://developers.skplanetx.com/apidoc/kor/t-map
 
